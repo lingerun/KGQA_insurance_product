@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <h2 style="text-align: center">保险产品查询系统</h2>
+            <div class="form-group">
+                <label for="username">请输入ID：</label>
+                <input class="form-control" type="text" id="username">
+            </div>
+            <button id="create_ws" onclick="go_to()" class="btn btn-warning">点击进行连接</button>
+            <div style="width: 100%; height: 300px; border: thick;background-color: cadetblue" id="chat_window" class="input-group">
+            </div>
+
+             <div class="input-group">
+                  <input type="text" class="form-control" placeholder="" id="send_msg">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="btn_send">发送消息</button>
+                  </span>
+                </div>
+              </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+
+    var ws_url="ws://10.185.32.88:5000/ws/";
+    var ws =null;
+
+    function go_to() {
+        var username = document.getElementById('username');
+        ws = new WebSocket(ws_url+username.value);
+        ws.onmessage=function(serv_msg){
+             msg=JSON.parse(serv_msg.data);
+             //console.log(serv_msg.data);
+            create_chart('y',msg)
+    };
+    }
+
+    function create_chart(self,content) {
+        if (self == "w"){
+            self = "left";
+            var spantag = document.createElement("span");
+            spantag.innerText='QUE：';
+
+            var spantag1 = document.createElement("span");
+            spantag1.innerText= content.send_msg;
+        }else{
+            self = "left";
+            var spantag = document.createElement("span");
+            spantag.innerText=content.send_user+'：';
+
+            var spantag1 = document.createElement("span");
+            spantag1.innerText=content.send_msg;
+
+        }
+        var divtag = document.createElement("div");
+        divtag.style="text-align:"+self;
+        divtag.appendChild(spantag);
+        divtag.appendChild(spantag1);
+        var char_window = document.getElementById('chat_window');
+        char_window.appendChild(divtag);
+
+    }
+    document.getElementById("btn_send").addEventListener("click",function () {
+
+        var send_msg=document.getElementById("send_msg");
+        ws.send(send_msg.value);
+
+        var s_msg = {send_msg:send_msg.value};
+        create_chart('w',s_msg);
+        send_msg.value='';
+    })
+
+</script>
+</body>
+</html>
